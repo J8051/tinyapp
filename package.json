@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/J8051/tinyapp/issues"
   },
-  "homepage": "https://github.com/J8051/tinyapp#readme"
+  "homepage": "https://github.com/J8051/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
