@@ -5,10 +5,12 @@ const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 
+// Original Database
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 }; 
+
 
 function generateRandomString() {
   let sixCharacterUniqueId = ""; 
@@ -20,7 +22,7 @@ function generateRandomString() {
   return sixCharacterUniqueId; 
 }
 
-
+//Routes 
 app.get("/", (req, res) => {
   res.send("Hello");
 }); 
@@ -45,6 +47,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
+  console.log(req.params);
   const longURL = urlDatabase[id];
   const templateVars = { id: req.params.id, longURL: longURL};
   res.render("urls_show", templateVars);
@@ -59,11 +62,20 @@ app.post("/urls", (req, res) => {
   //res.send("ok"); // Respond with 'Ok' (we will replace this)
 })
 
+app.post("/urls/:id/delete", (req, res) => { 
+  const id = req.params.id;
+  delete urlDatabase[id];
+
+    res.redirect("/urls");
+
+})
+
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
 
+//Server Listening 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`); 
 }); 
