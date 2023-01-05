@@ -19,7 +19,7 @@ function generateRandomString() {
   };
   return sixCharacterUniqueId; 
 }
-console.log(generateRandomString()); 
+
 
 app.get("/", (req, res) => {
   res.send("Hello");
@@ -35,7 +35,6 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase }; 
-  console.log("test log");
   res.render("urls_index", templateVars); 
 }); 
 
@@ -52,9 +51,18 @@ app.get("/urls/:id", (req, res) => {
 }); 
 
 app.post("/urls", (req, res) => { 
-  console.log(req.body)// Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  const shortUrl = generateRandomString(); 
+  urlDatabase[shortUrl] = req.body.longURL;
+  console.log(urlDatabase); 
+  //console.log(req.body)// Log the POST request body to the console
+    res.redirect(`/urls/${shortUrl}`);
+  //res.send("ok"); // Respond with 'Ok' (we will replace this)
 })
+
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`); 
