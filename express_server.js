@@ -36,14 +36,15 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    urls: urlDatabase,
+  };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
-
 
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
@@ -78,6 +79,12 @@ app.post("/urls/:id", (req, res) => {
   const longURL = req.body.longURL;
   urlDatabase[id] = longURL;
 
+  res.redirect("/urls");
+});
+
+app.post("/login", (req, res) => {
+  let val = req.body.username; 
+  res.cookie("username", val)
   res.redirect("/urls");
 });
 
