@@ -13,6 +13,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//Users Object Database
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
 
 function generateRandomString() {
   let sixCharacterUniqueId = "";
@@ -114,6 +128,21 @@ app.get("/register", (req, res) => {
     username,
   };
   res.render("register",templateVars);
+});
+
+app.post("/register", (req, res) => {
+  const userId = generateRandomString();
+  const newUser = {
+    userId,
+    email: req.body.email,
+    password:req.body.password,
+  }; 
+  users[userId] = newUser; 
+  res.cookie("usersId", userId);
+  
+
+  
+  res.redirect("/urls");
 });
 
 //Server Listening 
