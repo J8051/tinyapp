@@ -47,13 +47,23 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const username = req.cookies.username; 
+  const templateVars = {
+    urls: urlDatabase,
+    username,
+  };
+  res.render("urls_new",templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = { id, longURL };
+  const username = req.cookies.username; 
+  const templateVars = {
+    urls: urlDatabase,
+    username,
+    id, longURL 
+  };
   console.log(templateVars);
   res.render("urls_show", templateVars);
 });
