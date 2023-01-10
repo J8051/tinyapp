@@ -18,7 +18,6 @@ const users = {
 
 };
 
-
 function generateRandomString() {
   let sixCharacterUniqueId = "";
   let characters = "abcdefghijklmnopqrstuvwxyz123456789";
@@ -107,7 +106,7 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const userId = req.cookies.userId; 
+  const userId = req.cookies.userId;
   res.cookie("usersId", userId);
   const templateVars = {
     urls: urlDatabase,
@@ -118,11 +117,11 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  const userId = req.cookies.userId; 
+  const userId = req.cookies.userId;
   const templateVars = {
     urls: urlDatabase,
     users,
-   userId,
+    userId,
   };
   console.log("logging out");
   res.clearCookie("userId");
@@ -140,18 +139,32 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+  //console.log(users);
+
+  if (req.body.email === "" || req.body.password === "") {
+    console.log("email/password cant be empty");
+    res.sendStatus(400);
+  }
+  for (const user in users) {
+    console.log("user", users[user]);
+    if (req.body.email === users[user].email) {
+      res.sendStatus(400);
+    }
+  }
+
   const userId = generateRandomString();
+  console.log("userId", userId);
   const newUser = {
     userId,
     email: req.body.email,
     password: req.body.password,
   };
-
   users[userId] = newUser;
-  console.log(users);
   res.cookie("userId", userId);
+
   res.redirect("/urls");
 });
+
 
 //Server Listening 
 app.listen(PORT, () => {
