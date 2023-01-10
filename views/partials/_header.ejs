@@ -23,14 +23,22 @@
     <% if(userId){ %>
      Signed in as: <%=userId%>
      <form action="/logout" method="post" >
-     <button type="submit">Sign Out</button>
+     <button type="submit">Log Out</button>
       </form>
     <% } else { %>  
-      Email:
-      <form action="/login" method="post" >
-        <input  type="text" name ="userId">
-       <button type="submit">Submit</button>
-        </form>
+     <div>
+      <form action="/register" method="get" >
+        <button type="register">Register</button>
+         </form>
+     </div> 
+
+        <div>
+          <form action="/login" method="get" >
+            <button type="register">Log in</button>
+          </form>
+
+        </div>
+
    <% } %>
 
   </nav>
