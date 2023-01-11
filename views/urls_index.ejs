@@ -22,6 +22,7 @@
       <h3>My URLs</h3>
       <table class="table">
         <thead>
+          <!-- these are the table headings -->
           <tr>
             <th scope="col">Short URL ID</th>
             <th scope="col">Long URL</th>
@@ -30,14 +31,17 @@
           </tr>
         </thead>
         <tbody>
+          <!-- inside the table, display  each "id" inside the urls object -->
           <% for (let id in urls) { %>
             <tr>
-              <td><%= id %></td>
+              <!-- the id (the key in the object) -->
+              <td><%= id %></td> 
+              <!-- the value in the object -->
               <td> <%= urls[id] %></td>
               <form method="GET" action="/urls/<%= id%>">
                 <td><button>Edit</button></td> 
               </form>
-
+              <!-- this form points to the POS/urls/:id/delete -->
               <form method="POST" action="/urls/<%= id%>/delete">
                 <td><button>Delete</button></td> 
               </form>

@@ -13,6 +13,21 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//change all your code to use this
+// const urlDatabase = {
+//   b6UTxQ: {
+//     longURL: "https://www.tsn.ca",
+//     userID: "aJ48lW",
+//   },
+//   i3BoGr: {
+//     longURL: "https://www.google.ca",
+//     userID: "aJ48lW",
+//   },
+// };
+//you may need to use this to access long url after changes 
+//longUrl = urlDatabase[id].longUrl
+
+
 //Users Object
 const users = {
 
@@ -30,7 +45,7 @@ function generateRandomString() {
 
 //Routes 
 app.get("/", (req, res) => {
-  res.send("Hello");
+  res.send("Hello"); 
 });
 
 app.get("/urls.json", (req, res) => {
@@ -39,20 +54,26 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
+ 
 });
 
+//get request 
 app.get("/urls", (req, res) => {
-  const userId = req.cookies.user_id; 
+  const userId = req.cookies.user_id;
   const templateVars = {
     urls: urlDatabase,
-    users,
+    users,  
     userId
   };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  const userId = req.cookies.userId;
+  const userId = req.cookies.user_id;
+  if (!userId) {
+  return res.redirect("/login");
+  }
+
   const templateVars = {
     urls: urlDatabase,
     userId,
@@ -62,7 +83,9 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
+
   const id = req.params.id;
+
   const longURL = urlDatabase[id];
   const userId = req.cookies.user_id;
   const templateVars = {
@@ -76,11 +99,17 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  const userId = req.cookies.user_id;
+  console.log(userId); 
+  if (!userId) {
+   return res.status(404).send("you must be logged in to shorten urls");
+  };
+
   const shortUrl = generateRandomString();
   urlDatabase[shortUrl] = req.body.longURL;
-  //console.log(req.body)// Log the POST request body to the console
+ 
   res.redirect(`/urls/${shortUrl}`);
-  //res.send("ok"); // Respond with 'Ok' (we will replace this)
+
 });
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -90,12 +119,17 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
+  const id = req.params.id;
+  if (!Object.keys(urlDatabase).includes(id)) { 
+    return res.status(404).send("That id does not exist"); 
+  }; 
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
 
-app.post("/urls/:id", (req, res) => {
+app.post("/urls/:id", (req, res) => {//edits long urls
   const id = req.params.id;
+
   const longURL = req.body.longURL;
   urlDatabase[id] = longURL;
 
@@ -105,31 +139,35 @@ app.post("/urls/:id", (req, res) => {
 app.get("/login", (req, res) => {
   const userId = req.cookies.user_id;
 
+  if (userId) {
+   return res.redirect("/urls");
+  }
+
   const templateVars = {
     urls: urlDatabase,
     userId,
     users
   };
-  res.render("login", templateVars); 
+  res.render("login", templateVars);
 });
 
 app.post("/login", (req, res) => {
-  const email = req.body.email; 
-  const password = req.body.password; 
-  let user; 
+  const email = req.body.email;
+  const password = req.body.password;
+  let user;
 
-  for (const userId in users) { 
-    if (users[userId].email === email) { 
-      user = users[userId]
-      res.cookie("user_id", userId)
-      res.redirect("/urls")
+  for (const userId in users) {
+    if (users[userId].email === email) {
+      user = users[userId];
+      res.cookie("user_id", userId);
+      res.redirect("/urls");
     }
   }
-  if (!user) { 
-    return res.status(403).send("email not found"); 
+  if (!user) {
+    return res.status(403).send("email not found");
   }
 
-  if (user.password !== password) { 
+  if (user.password !== password) {
     return res.status(403).send("incorrect password");
   }
 
@@ -149,6 +187,9 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
   const userId = req.cookies.user_id;
+  if (userId) {
+    res.redirect("/urls");
+  };
   const templateVars = {
     urls: urlDatabase,
     users,
@@ -161,12 +202,12 @@ app.post("/register", (req, res) => {
 
   if (req.body.email === "" || req.body.password === "") {
     console.log("email/password cant be empty");
-   return res.sendStatus(400);
+    return res.sendStatus(400);
   };
 
   for (const user in users) {
     if (req.body.email === users[user].email) {
-     return  res.sendStatus(400);
+      return res.sendStatus(400);
     }
   };
 
@@ -181,8 +222,6 @@ app.post("/register", (req, res) => {
   res.cookie("user_id", userId);
   res.redirect("/urls");
 });
-
-
 
 //Server Listening 
 app.listen(PORT, () => {
