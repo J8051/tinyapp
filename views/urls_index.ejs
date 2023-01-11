@@ -18,6 +18,7 @@
   </head>
   <body>
     <%- include('partials/_header') %>
+
     <main style="margin: 1em;">
       <h3>My URLs</h3>
       <table class="table">
@@ -37,7 +38,7 @@
               <!-- the id (the key in the object) -->
               <td><%= id %></td> 
               <!-- the value in the object -->
-              <td> <%= urls[id] %></td>
+              <td> <%= urls[id].longURL %></td>
               <form method="GET" action="/urls/<%= id%>">
                 <td><button>Edit</button></td> 
               </form>
@@ -50,6 +51,7 @@
           <% } %>
         </tbody>
       </table>
+    
     </main>
     <!-- Bootstrap JS -->
     <script
