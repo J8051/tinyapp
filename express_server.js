@@ -146,6 +146,10 @@ app.get("/urls/:id", (req, res) => {
   const longURL = urlDatabase[id].longURL;
   const userId = req.cookies.user_id;
 
+  if (!userId) { 
+    return res.status(401).send("that is not allowed"); 
+  }; 
+
   const templateVars = {
     urls: urlDatabase,
     userId,
@@ -153,7 +157,9 @@ app.get("/urls/:id", (req, res) => {
     longURL,
     users,
   };
-  
+
+ 
+
   res.render("urls_show", templateVars);
 
 });
@@ -161,6 +167,11 @@ app.get("/urls/:id", (req, res) => {
 //allows a user to delete a url & id
 app.post("/urls/:id/delete", (req, res) => {
 
+  const userId = req.cookies.user_id;
+
+  if (!userId) { 
+    return res.status(401).send("that is not allowed"); 
+  }
   const id = req.params.id;
   delete urlDatabase[id];
   res.redirect("/urls");
