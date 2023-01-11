@@ -15,7 +15,16 @@ const urlDatabase = {
 
 //Users Object
 const users = {
-
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
 };
 
 function generateRandomString() {
@@ -27,6 +36,16 @@ function generateRandomString() {
   };
   return sixCharacterUniqueId;
 }
+
+const findUserEmail = function(users, email) {
+  for (const userId in users) {
+    if (users[userId].email === email) {
+      return users[userId];
+    }
+  }
+  return false;
+};
+
 
 //ROUTES//
 app.get("/", (req, res) => {
@@ -46,7 +65,7 @@ app.get("/hello", (req, res) => {
 
 //loads the urls page 
 app.get("/urls", (req, res) => {
-
+  console.log("users object", users);
   const userId = req.cookies.user_id;
 
   const templateVars = {
@@ -80,7 +99,7 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
 
   const userId = req.cookies.user_id;
- 
+
   if (!userId) {
     return res.status(404).send("you must be logged in to shorten urls");
   };
@@ -115,7 +134,7 @@ app.get("/urls/:id", (req, res) => {
 
 //allows a user to delete a url & id
 app.post("/urls/:id/delete", (req, res) => {
-  
+
   const id = req.params.id;
   delete urlDatabase[id];
   res.redirect("/urls");
@@ -130,14 +149,14 @@ app.get("/u/:id", (req, res) => {
   if (!Object.keys(urlDatabase).includes(id)) {
     return res.status(404).send("That id does not exist");
   };
-  
+
   res.redirect(longURL);
 
 });
 
 //edits long urls
 app.post("/urls/:id", (req, res) => {
-  
+
   const id = req.params.id;
   const longURL = req.body.longURL;
   urlDatabase[id] = longURL;
@@ -170,24 +189,24 @@ app.get("/login", (req, res) => {
 //validates the login info and creates a cookie 
 app.post("/login", (req, res) => {
 
-  const userId = req.cookies.user_id;
   const email = req.body.email;
   const password = req.body.password;
-  let user;
+  const id = emailFound.id;
 
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      user = users[userId];
-      res.cookie("user_id", userId);
-      res.redirect("/urls");
-    }
-  }; 
+  const emailFound = findUserEmail(users, email);
 
-  if (!user) {
+  if (!emailFound) {
+    return res.redirect("/register");
+  };
+
+  res.cookie("user_id", id);
+  res.redirect("/urls");
+
+  if (!id) {
     return res.status(403).send("email not found");
   }
 
-  if (user.password !== password) {
+  if (id.password !== password) {
     return res.status(403).send("incorrect password");
   }
 
@@ -210,6 +229,7 @@ app.post("/logout", (req, res) => {
 //loads the registration page 
 app.get("/register", (req, res) => {
 
+
   const userId = req.cookies.user_id;
 
   if (userId) {
@@ -223,16 +243,16 @@ app.get("/register", (req, res) => {
   };
 
   res.render("register", templateVars);
-  
+
 });
 
 //validates the registration 
 app.post("/register", (req, res) => {
 
-  const userId = generateRandomString();
+  const id = generateRandomString();
 
   const newUser = {
-    userId,
+    id,
     email: req.body.email,
     password: req.body.password,
   };
@@ -247,8 +267,8 @@ app.post("/register", (req, res) => {
     }
   };
 
-  users[userId] = newUser;
-  res.cookie("user_id", userId);
+  users[id] = newUser;
+  res.cookie("user_id", id);
   res.redirect("/urls");
 
 });
