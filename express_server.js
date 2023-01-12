@@ -1,5 +1,7 @@
 const express = require("express");
 
+const findUserEmail = require('./helpers');
+
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -18,6 +20,8 @@ const salt = bcrypt.genSaltSync(salt_rounds);
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+
+
 
 // Database 
 const urlDatabase = {
@@ -53,16 +57,17 @@ function generateRandomString() {
     sixCharacterUniqueId += charArr[Math.round(Math.random() * charArr.length)];
   };
   return sixCharacterUniqueId;
-}
-
-const findUserEmail = function(users, email) {
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      return users[userId];
-    }
-  }
-  return false;
 };
+
+
+// const findUserEmail = function(users, email) {
+//   for (const userId in users) {
+//     if (users[userId].email === email) {
+//       return users[userId];
+//     }
+//   }
+//   return false;
+// };
 
 const urlsForUser = function(userId) { 
   const userOwnShortUrls = {};
@@ -303,6 +308,7 @@ app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const emailFound = findUserEmail(users, email);
+  console.log(emailFound); 
   const password = req.body.password; 
   const hashedPassword = bcrypt.hashSync(password,10); 
 
