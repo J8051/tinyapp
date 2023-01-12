@@ -3,8 +3,14 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+const cookieSession = require('cookie-session')
+app.use(cookieSession({
+  name: 'session',
+  keys: ["aSecret"],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 
 const bcrypt = require("bcryptjs");
 const salt_rounds = 10; 
@@ -88,7 +94,7 @@ app.get("/hello", (req, res) => {
 //loads the urls page 
 app.get("/urls", (req, res) => {
   
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   if (!userId) { 
   return  res.status(401).send("Please log in to see your urls"); 
   }; 
@@ -106,7 +112,7 @@ app.get("/urls", (req, res) => {
 // loads the page for creating new urls 
 app.get("/urls/new", (req, res) => {
 
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
 
   if (!userId) {
     return res.redirect("/login");
@@ -125,7 +131,7 @@ app.get("/urls/new", (req, res) => {
 // creates shortened urls 
 app.post("/urls", (req, res) => {
 
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
 
   if (!userId) {
     return res.status(404).send("you must be logged in to shorten urls");
@@ -150,7 +156,7 @@ app.get("/urls/:id", (req, res) => {
 
   const id = req.params.id;
   const longURL = urlDatabase[id].longURL;
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
 
   if (!userId) { 
     return res.status(401).send("that is not allowed"); 
@@ -173,7 +179,7 @@ app.get("/urls/:id", (req, res) => {
 //allows a user to delete a url & id
 app.post("/urls/:id/delete", (req, res) => {
 
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
 
   if (!userId) { 
     return res.status(401).send("that is not allowed"); 
@@ -213,7 +219,7 @@ app.post("/urls/:id", (req, res) => {
 //loads the login page
 app.get("/login", (req, res) => {
 
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
 
   const templateVars = {
     urls: urlDatabase,
@@ -251,7 +257,8 @@ app.post("/login", (req, res) => {
     return res.status(403).send("incorrect password");
   };
 
-  res.cookie("user_id", id);
+  //res.cookie("user_id", id);
+  req.session.user_id = id;
   res.redirect("/urls");
 
 });
@@ -261,9 +268,10 @@ app.post("/login", (req, res) => {
 // logs out the user & clears cookies 
 app.post("/logout", (req, res) => {
 
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
 
-  res.clearCookie("user_id");
+  //res.clearCookie("user_id");
+  req.session = null; 
   res.redirect("/login");
 
 });
@@ -273,7 +281,7 @@ app.post("/logout", (req, res) => {
 //loads the registration page 
 app.get("/register", (req, res) => {
 
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
 
   if (userId) {
     res.redirect("/urls");
@@ -313,7 +321,8 @@ app.post("/register", (req, res) => {
   }
 
   users[id] = newUser;
-  res.cookie("user_id", id);
+  //res.cookie("user_id", id);
+  req.session.user_id = id; 
   res.redirect("/urls");
 
 });
