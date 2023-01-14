@@ -20,7 +20,7 @@
     </div>
     <!-- if a userid is present show a logout button -->
     <% if(userId){ %> 
-     Signed in as: <%=userId%>
+     Signed in as: <%=users[userId].email %>
      <form action="/logout" method="post" >
      <button type="submit">Log Out</button>
       </form>

@@ -22,7 +22,6 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 
 
-
 // Database 
 const urlDatabase = {
   b6UTxQ: {
@@ -40,7 +39,7 @@ const users = {
   userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    password: "p",
   },
   user2RandomID: {
     id: "user2RandomID",
@@ -59,16 +58,6 @@ function generateRandomString() {
   return sixCharacterUniqueId;
 };
 
-
-// const findUserEmail = function(users, email) {
-//   for (const userId in users) {
-//     if (users[userId].email === email) {
-//       return users[userId];
-//     }
-//   }
-//   return false;
-// };
-
 const urlsForUser = function(userId) { 
   const userOwnShortUrls = {};
   for (const shortURL in urlDatabase) { 
@@ -79,19 +68,18 @@ const urlsForUser = function(userId) {
   return userOwnShortUrls; 
 };
 
+// app.get("/urls.json", (req, res) => {
+//   res.json(urlDatabase);
+// });
+
+// app.get("/hello", (req, res) => {
+//   res.send("<html><body>Hello <b>World</b></body></html>\n");
+
+// });
 
 //ROUTES//
 app.get("/", (req, res) => {
-  res.send("Hello");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-
+  res.redirect("/login");
 });
 
 //URLS ROUTES// 
@@ -116,7 +104,7 @@ app.get("/urls", (req, res) => {
 
 // loads the page for creating new urls 
 app.get("/urls/new", (req, res) => {
-
+  console.log(users); 
   const userId = req.session.user_id;
 
   if (!userId) {
@@ -142,7 +130,6 @@ app.post("/urls", (req, res) => {
     return res.status(404).send("you must be logged in to shorten urls");
   };
 
-
   const shortUrl = generateRandomString();
 
   urlDatabase[shortUrl] = {
@@ -160,8 +147,18 @@ app.post("/urls", (req, res) => {
 app.get("/urls/:id", (req, res) => {
 
   const id = req.params.id;
-  const longURL = urlDatabase[id].longURL;
   const userId = req.session.user_id;
+
+  if (urlDatabase[id] === undefined) { 
+    return res.status(401).send("that is not a valid Id");
+  };
+
+  if (userId !== urlDatabase[id].userID) { 
+    return res.status(401).send("Please enter a short url that you own");
+  };  
+
+  const longURL = urlDatabase[id].longURL; 
+  
 
   if (!userId) { 
     return res.status(401).send("that is not allowed"); 
@@ -175,21 +172,23 @@ app.get("/urls/:id", (req, res) => {
     users,
   };
 
- 
-
   res.render("urls_show", templateVars);
 
 });
 
 //allows a user to delete a url & id
 app.post("/urls/:id/delete", (req, res) => {
-
+  const id = req.params.id;
   const userId = req.session.user_id;
 
+  if (userId !== urlDatabase[id].userID) { 
+    return res.status(401).send("Please delete a short url that you own");
+  };  
+
   if (!userId) { 
-    return res.status(401).send("that is not allowed"); 
+    return res.status(401).send("must delete a short url that you own"); 
   }
-  const id = req.params.id;
+  
   delete urlDatabase[id];
   res.redirect("/urls");
 
@@ -199,6 +198,15 @@ app.post("/urls/:id/delete", (req, res) => {
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[req.params.id].longURL;
+  const userId = req.session.user_id;
+
+  if (urlDatabase[id] === undefined || urlDatabase[id].longURL === undefined) { 
+    return res.status(401).send("that is not a valid Id");
+  };
+
+  if (userId !== urlDatabase[id].userID) { 
+    return res.status(401).send("Please enter a short url that you own");
+  };  
 
   if (!Object.keys(urlDatabase).includes(id)) {
     return res.status(404).send("That id does not exist");
