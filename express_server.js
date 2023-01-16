@@ -2,7 +2,7 @@
 const express = require("express");
 const app = express();
 
-//Port
+//Port 
 const PORT = 8080; // default port 8080
 
 //Import function
@@ -18,7 +18,7 @@ app.use(cookieSession({
 //Bcrypt config
 const bcrypt = require("bcryptjs");
 const salt_rounds = 10;
-const salt = bcrypt.genSaltSync(salt_rounds);
+// const salt = bcrypt.genSaltSync(salt_rounds);
 
 //Ejs config 
 app.set("view engine", "ejs");
@@ -87,7 +87,8 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
 
   const userId = req.session.user_id;
-  if (!userId) {
+  
+  if (!users[userId]) {
     return res.status(401).send("Please log in to see your urls");
   };
   const userOwnShortUrls = urlsForUser(userId);
@@ -180,6 +181,11 @@ app.post("/urls/:id/delete", (req, res) => {
 
   const id = req.params.id;
   const userId = req.session.user_id;
+  const shortURL = urlDatabase[id]; 
+ 
+  if (!shortURL) { 
+    return res.status(404).send("short Url not found"); 
+  }
 
   if (userId !== urlDatabase[id].userID) {
     return res.status(401).send("Please delete a short url that you own");
@@ -203,10 +209,6 @@ app.get("/u/:id", (req, res) => {
 
   if (urlDatabase[id] === undefined || urlDatabase[id].longURL === undefined) {
     return res.status(401).send("that is not a valid Id");
-  };
-
-  if (userId !== urlDatabase[id].userID) {
-    return res.status(401).send("Please enter a short url that you own");
   };
 
   if (!Object.keys(urlDatabase).includes(id)) {
@@ -243,7 +245,7 @@ app.get("/login", (req, res) => {
     users
   };
 
-  if (userId) {
+  if (users[userId]) {
     return res.redirect("/urls");
   }
 
@@ -317,10 +319,20 @@ app.get("/register", (req, res) => {
 //Validates registration 
 app.post("/register", (req, res) => {
 
-  const id = generateRandomString();
   const email = req.body.email;
   const emailFound = findUserEmail(users, email);
   const password = req.body.password;
+ 
+
+  if (!email || !password) {
+    return res.status(400).send("email/password cant be empty");
+  };
+
+  if (emailFound) {
+    return res.status(400).send("An account has already been registered to that email adress.");
+  }
+  
+  const id = generateRandomString();
   const hashedPassword = bcrypt.hashSync(password, 10);
 
   const newUser = {
@@ -328,14 +340,6 @@ app.post("/register", (req, res) => {
     email: req.body.email,
     password: hashedPassword,
   };
-
-  if (req.body.email === "" || req.body.password === "") {
-    return res.status(400).send("email/password cant be empty");
-  };
-
-  if (emailFound) {
-    return res.status(400).send("An account has already been registered to that email adress.");
-  }
 
   users[id] = newUser;
   req.session.user_id = id;

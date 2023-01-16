@@ -4,9 +4,9 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-![<img alt="Login page" width="50%" src="./imgs/user_login.png" />](View of the Login page)(#)
-![<img alt="Where users can create tiny urls" width="50%" src="./imgs/create_url.png" />](Creating urls page)(#)
-![<img alt="A list of urls created" width="50%" src="./imgs/urs_list.png" />](The list of urls created)(#)
+![<img alt="Login page" width="25%" src="./imgs/user_login.png" />](View of the Login page)(#)
+![<img alt="Where users can create tiny urls" width="25%" src="./imgs/create_url.png" />](Creating urls page)(#)
+![<img alt="A list of urls created" width="25%" src="./imgs/urs_list.png" />](The list of urls created)(#)
 
 ## Dependencies
 
@@ -19,4 +19,4 @@ TinyApp is a full stack web application built with Node and Express that allows 
 ## Getting Started
 
 - Install all dependencies (using the `npm install` command).
-- Run the development web server using the `node express_server.js` command.
+- Run the development web server using the `npm start` command.

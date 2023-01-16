@@ -19,7 +19,7 @@
       </div>
     </div>
     <!-- if a userid is present show a logout button -->
-    <% if(userId){ %> 
+    <% if(users[userId]){ %> 
      Signed in as: <%=users[userId].email %>
      <form action="/logout" method="post" >
      <button type="submit">Log Out</button>
